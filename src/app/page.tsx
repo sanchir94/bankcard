@@ -1,101 +1,110 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+
+const formSchema = z.object({
+  country: z.string().min(1, 'Улсаа сонгоно уу!'),
+  firstName: z.string().min(1, 'Нэрээ оруулна уу!'),
+  lastName: z.string().min(1, 'Овгоо оруулна уу!'),
+  cardNumber: z.string().min(16, 'Картын дугаар буруу!'),
+  month: z.string().min(1, 'Сараа сонгоно уу!'),
+  year: z.string().min(1, 'Жилээ сонгоно уу!'),
+  cvc: z.string().length(3, 'CVC 3 оронтой байх ёстой!')
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+export default function PaymentForm() {
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormValues>({
+    resolver: zodResolver(formSchema)
+  });
+
+  const onSubmit = (data: FormValues) => {
+    console.log('Submitted Data:', data);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    <Card className="w-full max-w-md mx-auto mt-10 p-6">
+      <CardContent>
+        <h2 className="text-xl font-bold">How would you like to be paid?</h2>
+        <p className="text-gray-500 mb-4">Enter location and payment details</p>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <Label>Select country</Label>
+            <Select onValueChange={(val) => setValue('country', val)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="USA">USA</SelectItem>
+                <SelectItem value="Canada">Canada</SelectItem>
+                <SelectItem value="UK">UK</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.country && <p className="text-red-500 text-sm">{errors.country.message}</p>}
+          </div>
+          <div className="flex space-x-2">
+            <div className="flex-1">
+              <Label>First name</Label>
+              <Input {...register('firstName')} placeholder="Enter your name here" />
+              {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName.message}</p>}
+            </div>
+            <div className="flex-1">
+              <Label>Last name</Label>
+              <Input {...register('lastName')} placeholder="Enter your name here" />
+              {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName.message}</p>}
+            </div>
+          </div>
+          <div>
+            <Label>Enter card number</Label>
+            <Input {...register('cardNumber')} placeholder="XXXX-XXXX-XXXX-XXXX" maxLength={16} />
+            {errors.cardNumber && <p className="text-red-500 text-sm">{errors.cardNumber.message}</p>}
+          </div>
+          <div className="flex space-x-2">
+            <div className="flex-1">
+              <Label>Expires</Label>
+              <Select onValueChange={(val) => setValue('month', val)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Month" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[...Array(12)].map((_, i) => (
+                    <SelectItem key={i} value={(i + 1).toString()}>{i + 1}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.month && <p className="text-red-500 text-sm">{errors.month.message}</p>}
+            </div>
+            <div className="flex-1">
+              <Label>Year</Label>
+              <Select onValueChange={(val) => setValue('year', val)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[...Array(10)].map((_, i) => (
+                    <SelectItem key={i} value={(2025 + i).toString()}>{2025 + i}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.year && <p className="text-red-500 text-sm">{errors.year.message}</p>}
+            </div>
+            <div className="flex-1">
+              <Label>CVC</Label>
+              <Input {...register('cvc')} placeholder="CVC" maxLength={3} />
+              {errors.cvc && <p className="text-red-500 text-sm">{errors.cvc.message}</p>}
+            </div>
+          </div>
+          <Button type="submit" className="w-full bg-gray-300 text-gray-500 cursor-not-allowed" disabled>Continue</Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
