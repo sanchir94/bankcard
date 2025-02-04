@@ -22,14 +22,19 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function PaymentForm() {
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, setValue,watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(formSchema)
   });
 
   const onSubmit = (data: FormValues) => {
     console.log('Submitted Data:', data);
   };
-
+  const handleCardNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let value = event.target.value.replace(/\D/g, ''); 
+    value = value.slice(0, 16); 
+    const formattedValue = value.replace(/(\d{4})/g, '$1-').replace(/-$/, ''); 
+    setValue('cardNumber', formattedValue);
+  };
   return (
     <Card className="w-full max-w-md mx-auto mt-10 p-6">
       <CardContent>
@@ -64,7 +69,11 @@ export default function PaymentForm() {
           </div>
           <div>
             <Label>Enter card number</Label>
-            <Input {...register('cardNumber')} placeholder="XXXX-XXXX-XXXX-XXXX" maxLength={16} />
+            <Input {...register('cardNumber')} 
+              placeholder="XXXX-XXXX-XXXX-XXXX" 
+              maxLength={19} 
+              value={watch('cardNumber') || ''} 
+              onChange={handleCardNumberChange}  />
             {errors.cardNumber && <p className="text-red-500 text-sm">{errors.cardNumber.message}</p>}
           </div>
           <div className="flex space-x-2">
